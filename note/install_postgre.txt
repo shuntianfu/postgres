@@ -1,0 +1,16 @@
+
+首先要进入postgreSQL做一些configuration
+
+1. 进入postresSQL
+
+sudo -iu postgres
+
+2. Initial configuration
+
+[postgres]$ initdb -D /var/lib/postgres/data
+
+
+启动psotgresql.sever, bash -> postgresql，因此postgresql不运行，bash上的命令就无效。
+需要postsql在background一直运行，接受bash的指令，因此启动的是server，而不像一般的命令
+直接在bash输入命令的名字。
+sytemctl start postgresql

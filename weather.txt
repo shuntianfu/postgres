@@ -1,0 +1,5 @@
+
+INSERT INTO weather (city, temp_lo, temp_hi, prcp, date)
+VALUES ('shanghai', 45, 67, 0.1, '1944-11-31');
+
+
