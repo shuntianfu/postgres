@@ -1,6 +1,4 @@
 
-\c test
-
 SELECT * FROM sales;
 
 SELECT

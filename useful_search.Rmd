@@ -1,0 +1,9 @@
+
+# Command line search
+
+
+```{bash, eval=FALSE}
+\?
+\help <command>
+\d <table>
+```
