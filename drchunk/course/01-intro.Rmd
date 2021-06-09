@@ -1,0 +1,92 @@
+# Introduction {#intro}
+
+The lessons address [course](https://www.pg4e.com/lessons).
+
+```{r , fig.cap="Track", echo=FALSE}
+knitr::include_graphics("images/track.pdf")
+```
+
+
+$track \cap genre$
+
+```{python, }
+from matplotlib import pyplot as plt
+import numpy as np
+from matplotlib_venn import venn2
+plt.figure(figsize=(8,5))
+v = venn2(subsets=(1, 1, 1), set_labels = ('A', 'B'))
+v.get_label_by_id('11').set_text('match pairs\n(track.genre_id, genre.id)\n(1, 1)\n (1, 1)\n(2, 2)\n(2, 2)') 
+v.get_label_by_id('10').set_text('Track') 
+v.get_label_by_id('01').set_text('Genre') 
+
+plt.show()
+```
+
+$track \cap album$
+
+```{python, }
+from matplotlib import pyplot as plt
+import numpy as np
+from matplotlib_venn import venn2
+plt.figure(figsize=(8,5))
+v = venn2(subsets=(1, 1, 1), set_labels = ('A', 'B'))
+v.get_label_by_id('11').set_text('match pairs\n(track.album_id, album.id)\n(2, 2)\n (2, 2)\n(1, 1)\n(1, 1)') 
+v.get_label_by_id('10').set_text('Track') 
+v.get_label_by_id('01').set_text('Album') 
+
+plt.show()
+```
+
+
+```{r , fig.cap="student course", fig.align="center", out.width='60%', echo=FALSE}
+knitr::include_graphics(rep("images/student_course.png", 1))
+```
+
+CROSS JOIN
+
+$\{id\} \times \{id\}$
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+You can label chapter and section titles using `{#label}` after them, e.g., we can reference Chapter \@ref(intro). If you do not manually label them, there will be automatic labels anyway, e.g., Chapter \@ref(methods).
+
+Figures and tables with captions will be placed in `figure` and `table` environments, respectively.
+
+```{r nice-fig, fig.cap='Here is a nice figure!', out.width='80%', fig.asp=.75, fig.align='center'}
+par(mar = c(4, 4, .1, .1))
+plot(pressure, type = 'b', pch = 19)
+```
+
+Reference a figure by its code chunk label with the `fig:` prefix, e.g., see Figure \@ref(fig:nice-fig). Similarly, you can reference tables generated from `knitr::kable()`, e.g., see Table \@ref(tab:nice-tab).
+
+```{r nice-tab, tidy=FALSE}
+knitr::kable(
+  head(iris, 20), caption = 'Here is a nice table!',
+  booktabs = TRUE
+)
+```
+
+You can write citations, too. For example, we are using the **bookdown** package [@R-bookdown] in this sample book, which was built on top of R Markdown and **knitr** [@xie2015].
+
+
+
+

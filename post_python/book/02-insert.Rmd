@@ -1,0 +1,173 @@
+# Insert Data Into a Table
+
+## Steps for inserting one row into a PostgreSQL table
+
+To insert a row into a PostgreSQL table in Python, you  use the following
+steps:
+
+First, connect to the PostgreSQL database server by calling the `connect()`
+fucntion of the `pyscopg` module.
+
+```{python, eval=FALSE}
+conn = psycopg2.connect(dsn)
+```
+
+The `connect()` function returns a new instance of the `connection` class.
+
+Next, create a new `cursor` object  by calling the `cursor()` method of the
+`connection` object.
+
+```{python, eval=FALSE}
+cur = conn.cursor()
+```
+
+Then, execute the `INSERT` statement with the input values by calling the 
+`execute()` method of the `cursor` object.
+
+```{python, eval=FALSE}
+cur.execute(sql, (value1, value2))
+```
+
+You pass the `INSERT` statement to the first parameter and a list of values
+to the second parameter of the `execute()` method.
+
+In case the `primary key` of the table is a `serial` or `identity column`, you can get the generated ID back after inserting the row.
+
+To do this, you use the `RETURING id` clause in the `INSERT` statement. After
+calling he `execute()` method, you call `fetchone()` method of the `cursor` object to get the `id` value like this:
+
+```{python, eval=FALSE}
+id = cur.fetchone()[0]
+```
+
+After that, call the `commit()` method of the `connection` object to permanently save the changes to the database.
+
+```{python, eval=FALSE}
+conn.commit()
+```
+
+If you forget to call the `commit()` method, `psycopg2` will not make any changes to the table.
+
+Finally, close the connection to the PostgreSQL database server by calling the `close()` method of the `coursor` and `connection` objects.
+
+```{python, eval=FALSE}
+cur.close()
+conn.close()
+```
+
+## Inserting one row into a PostgreSQL table example
+
+For the demonstration, we will use the `vendors` table in the `suppliers` table that we created in the chapter \@ref(createtable)
+
+```{r, out.width='40%'}
+knitr::include_graphics('images/vendors.png')
+```
+
+The following `insert_vendor()` function inserts a new row into the `vendors` table and returns the newly generated `vendor_id` value.
+
+```{python, eval=FALSE}
+import psycopg2
+from config import config
+
+def insert_vendor(vendor_name):
+    """ insert a new vendor into the vendors table """
+    sql = """INSERT INTO vendors(vendor_name)
+        VALUES(%s) RETURNING vendor_id;"""
+
+    conn = None
+    vendor_id = None
+    try:
+        # read database configuration
+        params = config()
+        # connect to the PostgreSQL database
+        conn = psycopg2.connect(**params)
+        # create a new cursor
+        cur = conn.cursor()
+        # execute the INSERT statement
+        cur.execute(sql, (vendor_name, ))
+        # get the generated id back
+        vendor_id = cur.fetchone()[0]
+        # commit the changes to the database
+        conn.commit()
+        # close communication with the database
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+    return vendor_id
+```
+
+## Inserting multiple rows into a PostgreSQL table example
+
+The steps for inserting multiple rows into a table are similar to the steps
+of inserting one row, except that in the third step, instead of calling the
+`execute()` method of the `cursor` object, you call the `executemany()` method.
+
+For example, the following `insert_vendor_list()` function inserts multiple
+rows into the `vendors` table.
+
+```{python, eval=FALSE}
+import psycopg2
+from config import config
+
+def insert_vendor_list(vendor_list):
+    """ insert a new vendor into the vendors table """
+    sql = """insert into vendors(vendor_name)
+        VALUES(%s) RETURNING vendor_id;"""
+
+    conn = None
+    vendor_id = None
+    try:
+        # read database configuration
+        params = config()
+        # connect to the PostgreSQL database
+        conn = psycopg2.connect(**params)
+        # create a new cursor
+        cur = conn.cursor()
+        # execute the INSERT statement
+        cur.executemany(sql, vendor_list)
+        # commit the changes to the database
+        conn.commit()
+        # close communication with the database
+        cur.close()
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+    finally:
+        if conn is not None:
+            conn.close()
+```
+
+To test the `insert_vendor()` and `insert_vendor_list()` functions, you use 
+following code snippet:
+
+```{python, eval=FALSE}
+if __name__ == '__main__':
+    # insert one vendor
+    insert_vendor('3M Co.')
+    # insert multiple vendors
+    insert_vendor_list([
+        ('AKM Semiconductor Inc.',),
+        ('Asahi Glass Co Ltd.',),
+        ('Daikin Industries Ltd.',),
+        ('Dynacast International Inc.',),
+        ('Foster Electric Co. Ltd.',),
+        ('Murata Manufacturing Co. Ltd.',)
+        ])
+```
+
+## TroubleShooting
+
+If you unpacked dictionary  `conn = psycopg2.connect(params)` instead of `conn = psycopg2.connect(**params)`, you get error like this:
+
+```{python, eval=FALSE}
+Expected bytes or unicode string, got dict instead
+Expected bytes or unicode string, got dict instead
+```
+
+Insert multiple vendors use `cur.executemany`, if you use `cur.execute`, error would be like this:
+
+```{python, eval=FALSE}
+not all arguments converted during string formatting
+```

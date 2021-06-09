@@ -1,0 +1,165 @@
+
+# DBI
+
+`R` database interface.
+
+```{r, }
+library(DBI)
+df <- read.csv('../../database.ini', sep=';')
+df <- data.frame(df)
+#conn <- dbConnect(RPostgres::Postgres(), dbname = df$dbname[1], host=df$host[1], user = df$user[1], password = df$password[1])
+conn <- dbConnect(RPostgres::Postgres(), dbname = df$dbname[1])
+```
+
+```{sql, connection = conn}
+select * from artist
+```
+
+```{sql, connection = conn}
+select * from account
+```
+
+```{sql, connection = conn, error = TRUE}
+select table_name, column_name, data_type from information_schema.columns
+where table_name = 'account'
+```
+
+```{sql, connection = conn, error = TRUE, eval=FALSE}
+SELECT
+    tc.constraint_name, tc.table_name, kcu.column_name, 
+    ccu.table_name AS foreign_table_name,
+    ccu.column_name AS foreign_column_name 
+FROM 
+    information_schema.table_constraints AS tc 
+    JOIN information_schema.key_column_usage AS kcu
+      ON tc.constraint_name = kcu.constraint_name
+    JOIN information_schema.constraint_column_usage AS ccu
+      ON ccu.constraint_name = tc.constraint_name
+WHERE constraint_type = 'FOREIGN KEY'
+```
+
+
+```{sql, connection = conn, error = TRUE}
+select * from account
+```
+
+
+```{sql, connection = conn, error = TRUE}
+select * from post
+```
+
+```{sql, connection = conn, error = TRUE}
+select * from fav
+```
+
+```{sql, connection = conn, error = TRUE}
+alter table fav drop column oops;
+```
+
+```{sql, connection = conn, error = TRUE}
+alter table fav add column howmuch integer;
+```
+
+```{sql, connection = conn, error = TRUE}
+alter table post alter column content type text;
+```
+
+## Dates
+
+```{sql, connection = conn, error = TRUE}
+select now()
+```
+
+```{sql, connection = conn, error = TRUE}
+select now() at time zone 'utc'
+```
+
+
+
+```{sql, connection = conn, error = TRUE}
+select now() at time zone 'HST'
+```
+
+```{sql, connection = conn, error = TRUE}
+select * from pg_timezone_names
+```
+
+```{sql, connection = conn, error = TRUE}
+select * from pg_timezone_names where name like '%Hawaii%'
+```
+
+```{sql, connection = conn, error = TRUE}
+select now()::DATE
+```
+
+```{sql, connection = conn, error = TRUE}
+select now()::TIME
+```
+
+
+```{sql, connection = conn, error = TRUE}
+select now() - interval '2 days'
+```
+
+```{sql, connection = conn, error = TRUE}
+select cast(now() - interval '2 days' as date)
+```
+
+```{sql, connection = conn, error = TRUE}
+select (now() - interval '2 days')::date
+```
+
+timestamp
+
+```{sql, connection = conn, error = TRUE}
+select '2012-01-01 04:23:55'::timestamp
+```
+
+```{sql, connection = conn, error = TRUE}
+select cast('2012-01-01 04:23:55' as timestamp)
+```
+
+how long since
+
+```{sql, connection = conn, error = TRUE}
+select now() - '2012-01-01'::timestamp
+```
+
+
+```{sql, connection = conn, error = TRUE}
+SELECT DATE_PART('days', NOW() - '2012-01-01'::TIMESTAMP);
+```
+
+```{sql, connection = conn, error = TRUE}
+select date_part('years', now()) - date_part('years', '2012-01-01'::date)
+```
+
+```{sql, connection = conn, error = TRUE}
+select date_part('years', now())
+```
+
+Inefficient table scan
+
+```{sql, connection = conn, error = TRUE}
+select id, content, created_at from comment
+where created_at::date = now()::date
+```
+
+A range query evaluated inside the database
+
+```{sql, connection = conn, error = TRUE}
+select id, content, created_at from comment
+where created_at >= date_trunc('day', now())
+and created_at < date_trunc('day', now() + interval '1 day');
+```
+
+
+
+
+
+```{r, }
+dbDisconnect(conn)
+```
+
+
+

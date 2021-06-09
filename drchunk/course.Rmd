@@ -1,0 +1,11 @@
+
+# database design
+
+
+$Tack \subset Genre$
+
+$Track \subset Album$
+
+$Album \subset Artist$
+
+

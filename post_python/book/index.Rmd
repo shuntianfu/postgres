@@ -1,0 +1,206 @@
+--- 
+title: "PostgreSQL Python"
+author: "zhang"
+date: "`r Sys.Date()`"
+site: bookdown::bookdown_site
+output: bookdown::gitbook
+documentclass: book
+bibliography: [book.bib, packages.bib]
+biblio-style: apalike
+link-citations: yes
+github-repo: rstudio/bookdown-demo
+description: "This is a minimal example of using the bookdown package to write a book. The output format for this example is bookdown::gitbook."
+---
+
+# Prerequisites
+
+## Install the psycopg2 module
+
+First, visit the [psycopg2 package here](https://pypi.org/project/psycopg2/).
+and [documentation](https://www.psycopg.org/docs/).
+
+Second, use the following command line from the terminals:
+
+```{bash, eval=FALSE}
+pip install psycopg2
+```
+
+If you have downloaded the source package into your computer, you can use the
+setup.py as follows:
+
+```{bash, eval=FALSE}
+python setup.py build
+sudo python setup.py install
+```
+
+## Create a new database
+
+First, log in to the PostgreSQL database server using any client tool such as
+pgAdmin or psql.
+
+Second, use the following statement to create **a new database** named `suppliers` in the PostgreSQL database server.
+
+```{bash, eval=FALSE}
+CREATE DATABASE suppliers;
+```
+
+## Connect to the PostgreSQL database using the psycopg2
+
+To connect to the `suppliers` database, you use the `connect()` function of the `pycopg2` module.
+
+The `connect()` function creates a new database session and returns a new
+instance of the `connect` class. By using `connection` object, you can create
+a new `cursor` to execute any SQL statements.
+
+To call the `connect()` function, you specify the PostgreSQL database parameters as a connection string and pass it to the function like this:
+
+```{python, eval=FALSE}
+conn = psycopg2.connect('dbname=suppilers user=postgres password=postgres')
+```
+
+Or you can use a list of keyword arguments:
+
+```{python, eval=FALSE}
+conn = psycopg2.connect(
+    host="localhost",
+    database='suppliers', 
+    user='postgres', 
+    password="your pass word")
+```
+
+The following is the list of the connection parameters:
+
+* database: the name of the database that you want to connect
+* user: the username used to authenticate
+* password: password used to authenticate
+* host: database server address e.g, localhost or an IP address
+* port: the port number that defaults to 5432 if it is not provided
+
+To make i more convenient, you can use a configuration file to store all connection parameters.
+
+The following shows the contents of the `database.ini` file:
+
+```{python, eval=FALSE}
+[postgresql]
+host=localhost
+database=suppliers
+user=postgres
+password=YourPassWord
+```
+
+By using `database.ini`, you can change the PostgreSQL connection paramters
+when you move the code to the production environment without modifying the
+code.
+
+Notice that if you git, you need add the `database.ini` to the `.gitignore` file to not committing the sensitive information to the public rep like github. The `gitignore` file will be like this:
+
+```{bash, eval=FALSE}
+database.ini
+```
+
+
+
+
+The following `config()` function read the `database.ini` file and returns
+connection parameters. The `config()` function is placed the `config.py` file:
+
+```{python, eval=FALSE}
+from configparser import ConfigParser
+
+def config(filename='_bookdown_files/config/database.ini', section='postgresql'):
+
+    # create a parser
+
+    parser = ConfigParser()
+    
+    # read config file
+    
+    parser.read(filename)
+    
+    # get section, default to postgresql
+    
+    db = {}
+    if parser.has_section(section):
+        parms = parser.items(section)
+        for parm in parms:
+            db[parm[0]] = parm[1]
+    else:
+         raise Exception(f'Section {section} not found in the {filename} file')
+    return db
+```
+
+The following `connect()` function connects to the `suppliers` database and prints out the PostreSQL database version.
+
+```{python, eval=FALSE}
+import psycopg2
+from config import config
+
+def connect():
+    """ Connect to the PostgreSQL database server"""
+    conn = None
+    try:
+        # read connection parameters
+        params = config()
+
+        # connect the PostgreSQL server
+
+        print('Connecting to the PostgreSQL database...')
+        
+        conn = psycopg2.connect(**params)
+
+        # create a cursor
+
+        cur = conn.cursor()
+
+        # execute a statement
+
+        print('PostgreSQL database version: ')
+        cur.execute('SELECT version()')
+
+        # close the commuication with the PostgreSQL
+        db_version = cur.fetchone()
+        print(db_version)
+
+        cur.close()
+
+    except (Exception, psycopg2.DatabaseError) as error:
+        print(error)
+
+    finally:
+        if conn is not None:
+            conn.close()
+            print('Database connection closed')
+
+if __name__ == '__main__':
+    connect()
+```
+
+How it works:
+
+* First, read database connection parameters from the `database.ini` file.
+* Next, create a new database connection by calling the `connect()` function.
+* Then, create a new `corsor` and execute an SQL statement to get the PostgreSQL database version.
+* After that, read the result set by calliing the `fetchone()` method of the cursor object.
+* Finally, close the communication with the database server by calling the `close()` method of the `cursor` and `connection` objects.
+
+
+## Execute the connect.py file
+
+To execute the `connect.py` file, you use following command:
+
+```{python, eval=FALSE}
+python connect.py
+```
+
+## TroubleShooting
+
+The `connect()` function raises the `DatabaseError` exception if an error occurred. To see how it works, you can change the connection parameters in the `database.ini` file.
+
+
+
+```{r include=FALSE}
+# automatically create a bib database for R packages
+knitr::write_bib(c(
+  .packages(), 'bookdown', 'knitr', 'rmarkdown'
+), 'packages.bib')
+```

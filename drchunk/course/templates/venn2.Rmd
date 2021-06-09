@@ -1,0 +1,11 @@
+
+```{python, }
+from matplotlib import pyplot as plt
+import numpy as np
+from matplotlib_venn import venn2
+plt.figure(figsize=(8,5))
+v = venn2(subsets=(1, 1, 1), set_labels = ('A', 'A and B', 'B'))
+plt.show()
+```
+
+

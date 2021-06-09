@@ -1,11 +1,11 @@
+\c test dt d products);
 
-\c test
+SELECT
+*
+FROM
+    film;
 
-\dt
-
-\d products
-
-);
-
-
-SELECT * FROM new_products;
+SELECT
+    *
+FROM
+    new_products;

@@ -1,0 +1,20 @@
+# log in
+psql <database name>
+
+# Create user and database
+
+CREATE USER <user name> WITH PASSWORD <password>
+CREATE DATABASE <database name> WITH OWNER <owner name>
+
+# Postgres command
+
+\\dt describe table
+
+Schema
+
+\\d+ <users>
+
+
+
+
+
